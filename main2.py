@@ -11,18 +11,20 @@ from stable_baselines.common.vec_env import SubprocVecEnv, DummyVecEnv
 from stable_baselines import PPO2
 from gym import spaces
 import numpy as np
-# env = gym.make('laikago-v0')
+env = gym.make('laikago-v0')
 
 # n_cpu = 4
-env = make_vec_env('laikago-v0')
+# env.reset()
+for _ in range(1000):
 
-model = PPO2(MlpPolicy, env, verbose=1)
-model.learn(total_timesteps=2000)
-obs = env.reset()
+        # obs = env.reset()
+
+        model = PPO2(MlpPolicy, env, verbose=1)
+        model.learn(total_timesteps=20)
 
 
-
-
+        env.render()
+        env.reset()
 
 
 

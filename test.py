@@ -12,8 +12,15 @@ from gym import spaces
 import numpy as np
 env = gym.make('laikago-v0')
 # print(observation)
-for _ in range(1000):
-    env.render()
-    observation=env.reset()
+# for _ in range(1000):
+#     env.render()
+#     observation=env.reset()
 
-    observation, reward, done, info = env.step(env.action_space.sample()) # take a random action
+#     observation, reward, done, info = env.step(env.action_space.sample()) # take a random action
+
+
+state = env.reset()
+reward, info, done = None, None, None
+while done != True:
+    state, reward, done, info = env.step(env.action_space.sample())
+    env.render()

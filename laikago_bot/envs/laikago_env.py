@@ -28,7 +28,8 @@ class WalkingLaikagoEnv(gym.Env):
         self._time_step = 0.01
         action_dim = 8
         action_high = np.array([self._action_bound] * action_dim)
-        self.action_space = spaces.Box(-action_high, action_high)
+        self.action_space = spaces.Discrete(9)
+        # self.action_space = spaces.Box(-action_high, action_high)
         self.observation_space = spaces.Box(
             low=-1, high=1, shape=(75,), dtype=np.float32)
 
@@ -42,6 +43,7 @@ class WalkingLaikagoEnv(gym.Env):
         p.resetDebugVisualizerCamera(
             cameraDistance=0.8, cameraYaw=0, cameraPitch=-30, cameraTargetPosition=[0, 0, 0])
         self._seed()
+        # self.reset()
 # [0,0,.5],[0,0.5,0.5,0]
         p.resetSimulation()
         p.setGravity(0, 0, -10)  # m/s^2
@@ -90,7 +92,7 @@ class WalkingLaikagoEnv(gym.Env):
         self.vd = 0
         self.maxV = 24.6 # 235RPM = 24,609142453 rad/sec
         self._envStepCounter = 0
-
+        self.envStepCounter =0
         p.resetSimulation()
         p.setGravity(0,0,-10) # m/s^2
         # p.setTimeStep(0.01) # sec
@@ -128,8 +130,8 @@ class WalkingLaikagoEnv(gym.Env):
 
     def assign_throttle(self, action):
       for i, key in enumerate(self.movingJoints):
-        self.vt[i] = self.clamp(self.vt[i] + action[i], -2, 2)
-        self.moveLeg(robot=self.robotId, id=key,  target=self.vt[i])
+        self.vt = self.clamp(self.vt + action, -2, 2)
+        self.moveLeg(robot=self.robotId, id=key,  target=self.vt)
 
 
     def compute_observation(self):
@@ -151,11 +153,7 @@ class WalkingLaikagoEnv(gym.Env):
                 i, joint[0], joint[1], joint[2][0], joint[2][1], joint[2][2], joint[2][3], joint[2][4], joint[2][5], joint[3]))
         print("\nBase Angular Velocity (Linear Vel( x= {} , y= {} , z=  {} ) Algular Vel(wx= {} ,wy= {} ,wz= {} ) ".format(
             BaseAngVel[0][0], BaseAngVel[0][1], BaseAngVel[0][2], BaseAngVel[1][0], BaseAngVel[1][1], BaseAngVel[1][2]))
-      #print( "\n\nContact Points" ,ContactPoints if len(ContactPoints) > 0 else None )
-      # print("\nContactPoints (contactFlag, idA, idB, linkidA, linkidB, posA, posB, contactnormalonb, contactdistance, normalForce, lateralFriction1, lateralFrictionDir1, lateralFriction2, lateralFrictionDir2)\n\n".format(
-      # ))
-      # print("Contact Point ", len(ContactPoints), ContactPoints[0] if len(ContactPoints) > 0 else None )
-
+  
       obs = np.array([
           baseOri[0][2],  # z (height) of the Torso -> 1
           # orientation (quarternion x,y,z,w) of the Torso -> 4
