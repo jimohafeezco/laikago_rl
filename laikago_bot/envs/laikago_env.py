@@ -123,25 +123,33 @@ class WalkingLaikagoEnv(gym.Env):
     def moveLeg(self, robot, id, target):
       if(robot is None):
           return
-      p.setJointMotorControl2(
-          bodyUniqueId=robot,
-          jointIndex=id,
-          controlMode=p.POSITION_CONTROL,  # controlMode   = p.VELOCITY_CONTROL,        #p.POSITION_CONTROL,
-          targetPosition=target # targetVelocity=target # targetVelocity= target                     #targetPosition=position,
-      )    
+      if id%2 == 0: 
+        p.setJointMotorControl2(
+            bodyUniqueId=robot,
+            jointIndex=id,
+            controlMode=p.POSITION_CONTROL,  # controlMode   = p.VELOCITY_CONTROL,        #p.POSITION_CONTROL,
+            targetPosition=target # targetVelocity=target # targetVelocity= target                     #targetPosition=position,
+        ) 
+      else:
+        p.setJointMotorControl2(
+            bodyUniqueId=robot,
+            jointIndex=id,
+            controlMode=p.POSITION_CONTROL,  # controlMode   = p.VELOCITY_CONTROL,        #p.POSITION_CONTROL,
+            targetPosition=-target # targetVelocity=target # targetVelocity= target                     #targetPosition=position,
+        )    
 
     def assign_throttle(self, action):
       for i, key in enumerate(self.movingJoints):
         # print(action)
-        # self.vt = self.clamp(self.vt + action, -2, 2)
+        self.vt = self.clamp(self.vt + action, -1, 1)
         # print(self.vt)
-        # self.moveLeg(robot=self.robotId, id=key,  target=self.vt)
+        self.moveLeg(robot=self.robotId, id=key,  target=self.vt*0.1)
 
-        dv = 0.1
-        deltav = [-10.*dv,-5.*dv, -2.*dv, -0.1*dv, 0, 0.1*dv, 2.*dv,5.*dv, 10.*dv][action]
-        vt = self.clamp(self.vt + deltav, -self.maxV, self.maxV)
-        self.vt = vt
-        self.moveLeg(robot=self.robotId, id=key,  target=self.vt)
+        # dv = 0.1
+        # deltav = [-10.*dv,-5.*dv, -2.*dv, -0.1*dv, 0, 0.1*dv, 2.*dv,5.*dv, 10.*dv][action]
+        # vt = self.clamp(self.vt + deltav, -self.maxV, self.maxV)
+        # self.vt = vt
+        # self.moveLeg(robot=self.robotId, id=key,  target=self.vt)
 
 
 
@@ -185,7 +193,7 @@ class WalkingLaikagoEnv(gym.Env):
             JointStates[6][1],
             JointStates[7][1]
         ])
-        print(observation)
+        # print(observation)
         return observation.tolist()
 
     def compute_reward(self):
@@ -229,30 +237,17 @@ class WalkingLaikagoEnv(gym.Env):
 
         return reward 
 
-    def compute_done(self):
-        cubePos = np.array(p.getBasePositionAndOrientation(self.robotId))
-        state=self.envStepCounter >= 100
-        # print(self.envStepCounter)
-        state1 = cubePos[0][2] < 0.45
-        print(cubePos[0][2])
-        # print(cubePos[2])
-        return state1 or state
-    #   return False or s
-    def is_fallen(self):
 
-        orientation = p.getBasePositionAndOrientation(self.robotId)[1]
-        rot_mat = p.getMatrixFromQuaternion(orientation)
-        local_up = rot_mat[6:]
-        pos = p.getBasePositionAndOrientation(self.robotId)[0]
-        #  or pos[2] < 0.13
-        return (np.dot(np.asarray([0, 0, 1]), np.asarray(local_up)) < 0.85)
 
     def termination(self):
         position = p.getBasePositionAndOrientation(self.robotId)[0]
         # distance = math.sqrt(position[0] ** 2 + position[1] ** 2)
-       
+        orient = p.getBasePositionAndOrientation(self.robotId)[1]
+        state1 = position[2]<0.50
+        print("oreitn",orient)
+        print("position", position)
         state=self.envStepCounter >=100
-        return position[2] < 0.45 or state
+        return state or state1
         #     print("LOW POSITION")
         # or position[2] <= 0.12
         # return self.is_fallen() or o[1] < -0.13 
