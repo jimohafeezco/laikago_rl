@@ -14,17 +14,24 @@ import numpy as np
 env = gym.make('laikago-v0')
 
 # n_cpu = 4
-# env.reset()
-for _ in range(1000):
+env.reset()
 
-        # obs = env.reset()
-
-        model = PPO2(MlpPolicy, env, verbose=1)
-        model.learn(total_timesteps=20)
+model = PPO2(MlpPolicy, env, verbose=1)
+model.learn(total_timesteps=10000)
 
 
-        env.render()
-        env.reset()
+env.render()
+
+# for _ in range(1000):
+
+#         # obs = env.reset()
+
+#         model = PPO2(MlpPolicy, env, verbose=1)
+#         model.learn(total_timesteps=1000)
+
+
+#         env.render()
+#         # env.reset()
 
 
 

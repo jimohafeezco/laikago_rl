@@ -23,12 +23,12 @@ def main():
     # for i in range(1000):
     # for i in range(1000):
         observation = env.reset()
-        print(observation)
+        # print(observation)
         act = deepq.learn(
             env,
             network=models.mlp(num_hidden=64, num_layers=1),
             lr=1e-3,
-            total_timesteps=10,
+            total_timesteps=100000,
             buffer_size=50000,
             exploration_fraction=0.1,
             exploration_final_eps=0.1,
